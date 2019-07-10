@@ -8,7 +8,8 @@ export default class Search extends React.Component{
     state = {
         search:'',
         data:[],
-        staticData: []
+        staticData: [],
+        error:''
     }
 
     async componentDidMount(){   
@@ -35,9 +36,15 @@ export default class Search extends React.Component{
             this.setState({
                 data:arr
             })
+            if(!this.state.data.length){
+                this.setState({
+                    error:'No results!'
+                })
+            }
         }else{
             this.setState({
-                data:''
+                data:'',
+                error:''
             })
         }
             
@@ -53,7 +60,7 @@ export default class Search extends React.Component{
                     <Button variant="primary" onClick={this.searching}>Search</Button>
                 </div>
                     {
-                        (this.state.data.length) ? ( 
+                        (!this.state.data.length) ? <div>{this.state.error}</div> : (this.state.data.length) ? ( 
                             <Table striped bordered hover variant="dark" style={{width: "95%"}}>
                                 <thead>
                                     <tr>
