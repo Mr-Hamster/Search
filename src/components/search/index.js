@@ -4,7 +4,6 @@ import {FormControl, Button, Table} from 'react-bootstrap'
 import './style.css'
 
 export default class Search extends React.Component{
-
     state = {
         search:'',
         data:[],
@@ -13,7 +12,7 @@ export default class Search extends React.Component{
     }
 
     async componentDidMount(){   
-        const response = await crudBuilder(`Mr-Hamster/server/data`).get();
+        const response = await crudBuilder('Mr-Hamster/server/data').get();
         this.setState({
             staticData:response.data
         })
@@ -23,44 +22,41 @@ export default class Search extends React.Component{
         const{staticData, search} = this.state;
         let arr=[];
         let str = search.toLowerCase();
-        if(search){
-            for(let key in staticData){
-                for(let value in staticData[key]){
-                    let someValue = staticData[key][value] + '';
-                    if(someValue.toLowerCase().includes(str)){
-                        arr.push(staticData[key]);
-                        break;
-                    }
+        if(!search){
+            this.setState({
+                data: [],
+                error: ''
+            })
+            return
+        }
+        for(let item of staticData){
+            for(let value in item){
+                if(String(item[value]).toLowerCase().includes(str)){
+                    arr.push(item);
+                    break;
                 }
             }
+        }
+        if(arr.length){
             this.setState({
                 data:arr
             })
-            if(!this.state.data.length){
-                this.setState({
-                    error:'No results!'
-                })
-            }
         }else{
             this.setState({
-                data:'',
-                error:''
+                data: [],
+                error: 'No results!'
             })
-        }
-            
+        }       
     }
     render(){
-        console.log(this.state)
+        const{data,error} = this.state;
         return(
             <div className='wrapper'>
                 <div className='search'>
-                    <FormControl aria-describedby="basic-addon1" style={{width:'70%'}} placeholder='Searching...' onChange={(event)=>this.setState({
-                        search:event.target.value
-                    })}/>    
+                    <FormControl aria-describedby="basic-addon1" style={{width:'70%', minWidth:'290px'}} placeholder='Searching...' onChange={(event)=>this.setState({search: event.target.value})}/>    
                     <Button variant="primary" onClick={this.searching}>Search</Button>
                 </div>
-                    {
-                        (!this.state.data.length) ? <div>{this.state.error}</div> : (this.state.data.length) ? ( 
+                    { data.length ? ( 
                             <Table striped bordered hover variant="dark" style={{width: "95%"}}>
                                 <thead>
                                     <tr>
@@ -83,7 +79,7 @@ export default class Search extends React.Component{
                                 }
                                 </tbody>
                             </Table>
-                        ) : <div></div>
+                        ) : <div className='error'>{error}</div>
                     }
             </div>
         );
